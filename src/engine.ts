@@ -7,7 +7,7 @@ class Engine {
   // 4. Handle dealer rules
   //
   //
-  // To start. Implement cards
+  // To start. Implement a deck
   // Then, implement dealer rules - how they play a hand (hit until 17)
   // Then, build hand evaluator - evaluates the current value of the players hand
   // Then, implement deal hand - all players dealt 2 cards, dealer has 1 face down
