@@ -1,0 +1,27 @@
+import { expect, test } from "vitest";
+import { Dealer } from "../dealer.js";
+import { Deck } from "../deck.js";
+import { Table } from "../table.js";
+import { Shoe } from "../shoe.js";
+
+test("Expect correct amount of cards to be dealt to each player & dealer", () => {
+  const dealer = new Dealer();
+  const table = new Table(dealer, 5);
+  const shoe = new Shoe(4);
+
+  table.fillSeats();
+
+  const players = table.getSeatedPlayers();
+
+  dealer.deal(shoe, players);
+
+  const totalPlayerCardCount = players.reduce(
+    (accumulator, current) => accumulator + current.cards.length,
+    0,
+  );
+
+  const totalDealerCardCount = table.dealer.cards.length;
+
+  expect(totalPlayerCardCount).toBe(10);
+  expect(totalDealerCardCount).toBe(2);
+});

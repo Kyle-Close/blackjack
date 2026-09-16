@@ -1,4 +1,5 @@
-import type { Player } from "./player.js";
+import { Dealer } from "./dealer.js";
+import { Player } from "./player.js";
 
 type Seat = Player | null;
 
@@ -7,7 +8,8 @@ export class Table {
   seatCount: number;
   seats: Seat[];
 
-  constructor(seats: number) {
+  constructor(dealer: Dealer, seats: number) {
+    this.dealer = dealer;
     this.seatCount = seats;
     this.seats = [];
   }
@@ -18,5 +20,16 @@ export class Table {
     }
 
     this.seats.push(player);
+  }
+
+  fillSeats() {
+    for (let i = 0; i < this.seatCount; i++) {
+      const player = new Player(`Guy ${i + 1}`, 1000);
+      this.seats.push(player);
+    }
+  }
+
+  getSeatedPlayers(): Player[] {
+    return this.seats.filter((seat) => seat !== null);
   }
 }

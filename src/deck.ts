@@ -43,7 +43,12 @@ export class Deck {
   create(): Card[] {
     const newDeck: Card[] = [];
     for (let i = 0; i < 13; i++) {
-      const value = i + 2 > 10 ? 10 : i + 2;
+      let value = i + 2 > 10 ? 10 : i + 2;
+
+      if (i === 12) {
+        value = 1;
+      }
+
       const rank = this.getRank(i);
 
       for (let j = 0; j < 4; j++) {
