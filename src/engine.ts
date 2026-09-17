@@ -30,12 +30,20 @@ export class Engine {
 
     this.autoExecuteTurn(this.table.dealer);
 
+    const dealerHandValue = HandEvaluator.evaluate(this.table.dealer.cards)
+
     console.log(
-      `Dealer Total: ${HandEvaluator.evaluate(this.table.dealer.cards)}`,
+      `Dealer has ${dealerHandValue}${dealerHandValue > 21 ? ' - BUST' : ''}`,
     );
 
+    let playerWinCount = 0;
+
     this.table.getSeatedPlayers().forEach((player) => {
-      console.log(`${player.name}: ${HandEvaluator.evaluate(player.cards)}`);
+      const playerName = player.name;
+      const playerHandValue = HandEvaluator.evaluate(player.cards);
+      const result = HandEvaluator.compareHands(player, this.table.dealer);
+
+      console.log(`${playerName} has ${playerHandValue}: ${result}`)
     });
   }
 
