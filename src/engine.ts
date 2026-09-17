@@ -1,11 +1,11 @@
 import { Dealer } from "./dealer.js";
 import { HandEvaluator } from "./handEvaluator.js";
+import { DEFAULT_DECKS_IN_SHOE, DEFAULT_SEATS_AT_TABLE } from "./index.js";
+import { Logger } from "./logger.js";
 import type { Player } from "./player.js";
 import { Shoe } from "./shoe.js";
 import { Table } from "./table.js";
 
-const DEFAULT_DECKS_IN_SHOE = 4;
-const DEFAULT_SEATS_AT_TABLE = 6;
 
 
 export class Engine {
@@ -15,12 +15,14 @@ export class Engine {
 
   shoe: Shoe;
   table: Table;
+  logger: Logger;
 
-  constructor() {
+  constructor(logger: Logger) {
     const dealer = new Dealer();
 
     this.shoe = new Shoe(DEFAULT_DECKS_IN_SHOE);
     this.table = new Table(dealer, DEFAULT_SEATS_AT_TABLE, true);
+    this.logger = logger;
   }
 
   run() {
@@ -35,16 +37,7 @@ export class Engine {
 
     this.autoExecuteTurn(this.table.dealer);
 
-    const dealerHandValue = HandEvaluator.evaluate(this.table.dealer.cards)
-
-    /* console.log(
-      `Dealer has ${dealerHandValue}${dealerHandValue > 21 ? ' - BUST' : ''}`,
-    ); */
-
-
     this.table.getSeatedPlayers().forEach((player) => {
-      const playerName = player.name;
-      const playerHandValue = HandEvaluator.evaluate(player.cards);
       const result = HandEvaluator.compareHands(player, this.table.dealer);
 
       if (result === "Player Win") {
@@ -55,7 +48,6 @@ export class Engine {
         Engine.playerPushCount += 1;
       }
 
-      // console.log(`${playerName} has ${playerHandValue}: ${result}`)
     });
   }
 

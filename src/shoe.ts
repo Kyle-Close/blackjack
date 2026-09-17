@@ -5,6 +5,7 @@ export class Shoe {
   cards: Card[];
   cutCardPosition: number;
   newShuffle: boolean;
+  deckCount: number;
 
   constructor(deckCount: number) {
     if (deckCount < 1) {
@@ -12,6 +13,7 @@ export class Shoe {
     }
 
     this.newShuffle = false;
+    this.deckCount = deckCount;
     this.cards = [];
 
     for (let i = 0; i < deckCount; i++) {
