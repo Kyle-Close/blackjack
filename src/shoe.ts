@@ -1,5 +1,5 @@
 import { Deck, type Card } from "./deck.js";
-import { getRandomNumber } from "./util.js";
+import { getCutCardIndex } from "./util.js";
 
 export class Shoe {
   cards: Card[];
@@ -20,10 +20,7 @@ export class Shoe {
       this.cards.push(...deck.cards);
     }
 
-    this.cutCardPosition = getRandomNumber(
-      this.cards.length / 2,
-      this.cards.length - 20,
-    );
+    this.cutCardPosition = getCutCardIndex(this.cards);
   }
 
   draw(): Card {

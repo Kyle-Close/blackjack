@@ -7,7 +7,12 @@ import { Table } from "./table.js";
 const DEFAULT_DECKS_IN_SHOE = 4;
 const DEFAULT_SEATS_AT_TABLE = 6;
 
+
 export class Engine {
+  static playerWinCount: number = 0;
+  static playerPushCount: number = 0;
+  static dealerWinCount: number = 0;
+
   shoe: Shoe;
   table: Table;
 
@@ -32,18 +37,25 @@ export class Engine {
 
     const dealerHandValue = HandEvaluator.evaluate(this.table.dealer.cards)
 
-    console.log(
+    /* console.log(
       `Dealer has ${dealerHandValue}${dealerHandValue > 21 ? ' - BUST' : ''}`,
-    );
+    ); */
 
-    let playerWinCount = 0;
 
     this.table.getSeatedPlayers().forEach((player) => {
       const playerName = player.name;
       const playerHandValue = HandEvaluator.evaluate(player.cards);
       const result = HandEvaluator.compareHands(player, this.table.dealer);
 
-      console.log(`${playerName} has ${playerHandValue}: ${result}`)
+      if (result === "Player Win") {
+        Engine.playerWinCount += 1;
+      } else if (result === "Dealer Win") {
+        Engine.dealerWinCount += 1;
+      } else {
+        Engine.playerPushCount += 1;
+      }
+
+      // console.log(`${playerName} has ${playerHandValue}: ${result}`)
     });
   }
 
