@@ -1,14 +1,26 @@
 import type { Card, Deck } from "./deck.js";
+import { HandEvaluator } from "./handEvaluator.js";
 import type { Player } from "./player.js";
 import type { Shoe } from "./shoe.js";
 
-type DealerAction = "Hit" | "Stand";
+export type DealerAction = "Hit" | "Stand" | "Bust";
 
 export class Dealer {
   cards: Card[];
 
   constructor() {
     this.cards = [];
+  }
+
+  clearCards() {
+    this.cards = [];
+  }
+
+  getShowCard() {
+    if (this.cards.length === 0) {
+      throw new Error("Cannot get show card from dealer with no cards.");
+    }
+    return this.cards[0];
   }
 
   deal(shoe: Shoe, players: Player[]) {
@@ -30,16 +42,17 @@ export class Dealer {
     dealDealerOne();
   }
 
+  dealSingle(shoe: Shoe, entity: Player | Dealer) {
+    const nextCard = shoe.draw();
+    entity.cards.push(nextCard);
+    return nextCard;
+  }
+
   getNextDealerAction(): DealerAction {
-    const currentHandValue = this.cards.reduce(
-      (accumulator, currentCard) => accumulator + currentCard.value,
-      0,
-    );
+    const currentHandValue = HandEvaluator.evaluate(this.cards);
 
     if (currentHandValue > 21) {
-      throw new Error(
-        `Cannot get next dealer action as the dealer has already busted with: ${currentHandValue}`,
-      );
+      return "Bust";
     }
 
     if (currentHandValue < 17) {

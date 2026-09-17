@@ -6,10 +6,8 @@ import { Shoe } from "../shoe.js";
 
 test("Expect correct amount of cards to be dealt to each player & dealer", () => {
   const dealer = new Dealer();
-  const table = new Table(dealer, 5);
+  const table = new Table(dealer, 5, true);
   const shoe = new Shoe(4);
-
-  table.fillSeats();
 
   const players = table.getSeatedPlayers();
 

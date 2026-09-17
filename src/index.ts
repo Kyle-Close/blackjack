@@ -1,4 +1,4 @@
-import { Deck } from "./deck.js";
+import { Engine } from "./engine.js";
 
-const deck = new Deck();
-deck.print();
+const engine = new Engine();
+engine.run();

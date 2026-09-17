@@ -8,10 +8,17 @@ export class Table {
   seatCount: number;
   seats: Seat[];
 
-  constructor(dealer: Dealer, seats: number) {
+  constructor(dealer: Dealer, seats: number, autoFill: boolean) {
     this.dealer = dealer;
     this.seatCount = seats;
     this.seats = [];
+
+    if (autoFill) {
+      for (let i = 0; i < this.seatCount; i++) {
+        const player = new Player(`Guy ${i + 1}`, 1000);
+        this.seats.push(player);
+      }
+    }
   }
 
   seatPlayer(player: Player) {
@@ -22,14 +29,12 @@ export class Table {
     this.seats.push(player);
   }
 
-  fillSeats() {
-    for (let i = 0; i < this.seatCount; i++) {
-      const player = new Player(`Guy ${i + 1}`, 1000);
-      this.seats.push(player);
-    }
-  }
-
   getSeatedPlayers(): Player[] {
     return this.seats.filter((seat) => seat !== null);
+  }
+
+  clearAllHands() {
+    this.dealer.clearCards();
+    this.getSeatedPlayers().forEach((player) => player.clearCards());
   }
 }
