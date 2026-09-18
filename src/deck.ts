@@ -1,7 +1,7 @@
 import { shuffleArray } from "./util.js";
 
-type Suit = "Heart" | "Diamond" | "Spade" | "Club";
-type Rank =
+export type Suit = "Heart" | "Diamond" | "Spade" | "Club";
+export type Rank =
   | "2"
   | "3"
   | "4"
@@ -110,6 +110,34 @@ export class Deck {
         return "Ace";
       default:
         throw new Error(`Invalid index passed to getRank: ${index}`);
+    }
+  }
+
+  public static getRankShort(rank: Rank): string {
+    switch(rank) {
+      case 'Ace':
+        return 'A';
+      case 'King':
+        return 'K';
+      case 'Queen':
+        return 'Q';
+      case 'Jack':
+        return 'J';
+      default:
+        return rank;
+    }
+  }
+
+  public static getSuitShort(suit: Suit) {
+    switch(suit) {
+      case 'Spade':
+        return '\u2660'
+      case 'Club':
+        return '\u2663'
+      case 'Heart':
+        return '\u2666'
+      case 'Diamond':
+        return '\u2663'
     }
   }
 }

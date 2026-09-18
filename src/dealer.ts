@@ -1,9 +1,8 @@
-import type { Card, Deck } from "./deck.js";
-import { HandEvaluator } from "./handEvaluator.js";
+import type { Card } from "./deck.js";
 import type { Player } from "./player.js";
 import type { Shoe } from "./shoe.js";
 
-export type DealerAction = "Hit" | "Stand" | "Bust";
+export type DealerAction = "Hit" | "Stand"
 
 export class Dealer {
   cards: Card[];
@@ -16,11 +15,12 @@ export class Dealer {
     this.cards = [];
   }
 
-  getShowCard() {
-    if (this.cards.length === 0) {
+  getUpCard() {
+    const showCard = this.cards[0];
+    if (!showCard) {
       throw new Error("Cannot get show card from dealer with no cards.");
     }
-    return this.cards[0];
+    return showCard;
   }
 
   deal(shoe: Shoe, players: Player[]) {
@@ -46,19 +46,5 @@ export class Dealer {
     const nextCard = shoe.draw();
     entity.cards.push(nextCard);
     return nextCard;
-  }
-
-  getNextDealerAction(): DealerAction {
-    const currentHandValue = HandEvaluator.evaluate(this.cards);
-
-    if (currentHandValue > 21) {
-      return "Bust";
-    }
-
-    if (currentHandValue < 17) {
-      return "Hit";
-    } else {
-      return "Stand";
-    }
   }
 }

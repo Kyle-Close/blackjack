@@ -1,5 +1,5 @@
 import type { Dealer } from "./dealer.js";
-import type { Card } from "./deck.js";
+import { Deck, type Card } from "./deck.js";
 import type { Player } from "./player.js";
 
 type CompareHandResult = "Player Win" | "Dealer Win" | "Push";
@@ -44,5 +44,16 @@ export class HandEvaluator {
     } else {
       return "Dealer Win";
     }
+  }
+
+  public static stringifyHand(hand: Card[]) {
+    let shorts: string[] = [];
+
+    hand.forEach(card => {
+      const short = Deck.getRankShort(card.rank) +  Deck.getSuitShort(card.suit)
+      shorts.push(short);
+    })
+
+    return `${shorts.join(' -> ')} = ${HandEvaluator.evaluate(hand)}`;
   }
 }

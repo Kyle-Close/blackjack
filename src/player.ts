@@ -20,17 +20,4 @@ export class Player {
   clearCards() {
     this.cards = [];
   }
-
-  // Temporary: for now players will play like the dealer.
-  getNextDealerAction(): DealerAction {
-    const currentHandValue = HandEvaluator.evaluate(this.cards);
-
-    if (currentHandValue > 21) {
-      return "Bust";
-    } else if (currentHandValue < 17) {
-      return "Hit";
-    } else {
-      return "Stand";
-    }
-  }
 }
