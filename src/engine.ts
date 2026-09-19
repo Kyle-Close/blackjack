@@ -2,6 +2,7 @@ import { Dealer } from "./dealer.js";
 import { Deck, type Card } from "./deck.js";
 import { HandEvaluator } from "./handEvaluator.js";
 import {
+  BLACK_JACK_MULTIPLIER,
   DEFAULT_DECKS_IN_SHOE,
   DEFAULT_PLAYER_WAGER,
   DEFAULT_SEATS_AT_TABLE,
@@ -24,6 +25,10 @@ export class Engine {
 
   static totalWagered: number = 0;
   static netResult: number = 0;
+
+  static winCount: number = 0;
+  static lossCount: number = 0;
+  static pushCount: number = 0;
 
   shoe: Shoe;
   table: Table;
@@ -92,13 +97,20 @@ export class Engine {
         Engine.totalWagered += hand.wager;
 
         switch (hand.result) {
+          case "BJ":
+            Engine.winCount += 1;
+            Engine.netResult += hand.wager * BLACK_JACK_MULTIPLIER;
+            break;
           case "Dealer Win":
+            Engine.lossCount += 1;
             Engine.netResult -= hand.wager;
             break;
           case "Player Win":
+            Engine.winCount += 1;
             Engine.netResult += hand.wager;
             break;
           case "Push":
+            Engine.pushCount += 1;
             break;
           default:
             throw new Error(
@@ -147,6 +159,11 @@ export class Engine {
   ): boolean {
     let didSplit = false;
 
+    if (this.isBJ(hand)) {
+      hand.isBlackJack = true;
+      return didSplit;
+    }
+
     while (action !== "Stand") {
       if (action === "Hit") {
         this.table.dealer.dealSingle(this.shoe, hand);
@@ -175,6 +192,10 @@ export class Engine {
     }
 
     return didSplit;
+  }
+
+  isBJ(hand: Hand) {
+    return hand.cards.length === 2 && HandEvaluator.evaluate(hand.cards) === 21;
   }
 
   getAvailablePlayerActions(player: Player): Action[] {

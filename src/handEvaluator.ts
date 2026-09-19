@@ -2,7 +2,7 @@ import type { Dealer } from "./dealer.js";
 import { Deck, type Card } from "./deck.js";
 import type { Hand, Player } from "./player.js";
 
-export type HandResult = "Player Win" | "Dealer Win" | "Push";
+export type HandResult = "Player Win" | "Dealer Win" | "Push" | "BJ";
 
 export class HandEvaluator {
   public static evaluate(cards: Card[]) {
@@ -32,7 +32,16 @@ export class HandEvaluator {
     const playerHandValue = HandEvaluator.evaluate(playerHand.cards);
     const dealerHandValue = HandEvaluator.evaluate(dealerHand.cards);
 
-    if (playerHandValue > 21) {
+    if (
+      playerHand.cards.length === 2 &&
+      HandEvaluator.evaluate(playerHand.cards) === 21 &&
+      !(
+        dealerHand.cards.length === 2 &&
+        HandEvaluator.evaluate(dealerHand.cards) === 21
+      )
+    ) {
+      return "BJ";
+    } else if (playerHandValue > 21) {
       return "Dealer Win";
     } else if (dealerHandValue > 21) {
       return "Player Win";

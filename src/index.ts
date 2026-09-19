@@ -6,6 +6,7 @@ export const ROUNDS_TO_RUN = 10000;
 export const DEFAULT_DECKS_IN_SHOE = 4;
 export const DEFAULT_SEATS_AT_TABLE = 6;
 export const DEFAULT_PLAYER_WAGER = 1;
+export const BLACK_JACK_MULTIPLIER = 1.5;
 
 let csvLogger: Logger;
 let txtLogger: Logger;
@@ -38,5 +39,9 @@ const hands = DEFAULT_SEATS_AT_TABLE * ROUNDS_TO_RUN;
 csvLogger.log(
   `${timeStamp},${strategy},${decks},${hands},${Engine.totalWagered},${Engine.netResult}`,
 );
+
+console.log("Win Count: ", Engine.winCount);
+console.log("Loss Count: ", Engine.lossCount);
+console.log("Push Count: ", Engine.pushCount);
 
 await csvLogger.close();

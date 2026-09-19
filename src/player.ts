@@ -32,10 +32,12 @@ export class Hand {
   hasDoubled: boolean;
   wager: number;
   result: HandResult | undefined;
+  isBlackJack: boolean;
 
   constructor(wager: number, cards?: Card[]) {
     this.cards = cards ?? [];
     this.hasDoubled = false;
     this.wager = wager;
+    this.isBlackJack = false;
   }
 }
