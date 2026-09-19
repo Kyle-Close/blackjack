@@ -1,8 +1,8 @@
 import type { Dealer } from "./dealer.js";
 import { Deck, type Card } from "./deck.js";
-import type { Player } from "./player.js";
+import type { Hand, Player } from "./player.js";
 
-type CompareHandResult = "Player Win" | "Dealer Win" | "Push";
+export type HandResult = "Player Win" | "Dealer Win" | "Push";
 
 export class HandEvaluator {
   public static evaluate(cards: Card[]) {
@@ -28,15 +28,14 @@ export class HandEvaluator {
     return sum;
   }
 
-
-  public static compareHands(player: Player, dealer: Dealer): CompareHandResult {
-    const playerHandValue = HandEvaluator.evaluate(player.cards);
-    const dealerHandValue = HandEvaluator.evaluate(dealer.cards);
+  public static compareHands(playerHand: Hand, dealerHand: Hand): HandResult {
+    const playerHandValue = HandEvaluator.evaluate(playerHand.cards);
+    const dealerHandValue = HandEvaluator.evaluate(dealerHand.cards);
 
     if (playerHandValue > 21) {
-      return 'Dealer Win'
+      return "Dealer Win";
     } else if (dealerHandValue > 21) {
-      return 'Player Win'
+      return "Player Win";
     } else if (playerHandValue === dealerHandValue) {
       return "Push";
     } else if (playerHandValue > dealerHandValue) {
@@ -49,11 +48,11 @@ export class HandEvaluator {
   public static stringifyHand(hand: Card[]) {
     let shorts: string[] = [];
 
-    hand.forEach(card => {
-      const short = Deck.getRankShort(card.rank) +  Deck.getSuitShort(card.suit)
+    hand.forEach((card) => {
+      const short = Deck.getRankShort(card.rank) + Deck.getSuitShort(card.suit);
       shorts.push(short);
-    })
+    });
 
-    return `${shorts.join(' -> ')} = ${HandEvaluator.evaluate(hand)}`;
+    return `${shorts.join(" -> ")} = ${HandEvaluator.evaluate(hand)}`;
   }
 }

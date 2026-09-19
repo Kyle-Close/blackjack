@@ -34,7 +34,7 @@ export class Table {
   }
 
   clearAllHands() {
-    this.dealer.clearCards();
+    this.dealer.resetHand();
     this.getSeatedPlayers().forEach((player) => player.clearCards());
   }
 }

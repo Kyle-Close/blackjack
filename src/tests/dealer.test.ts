@@ -11,14 +11,19 @@ test("Expect correct amount of cards to be dealt to each player & dealer", () =>
 
   const players = table.getSeatedPlayers();
 
-  dealer.deal(shoe, players);
+  dealer.dealTable(shoe, players);
 
   const totalPlayerCardCount = players.reduce(
-    (accumulator, current) => accumulator + current.cards.length,
+    (accumulator, currentPlayer) =>
+      accumulator +
+      currentPlayer.hands.reduce(
+        (accumulator, currentHand) => accumulator + currentHand.cards.length,
+        0,
+      ),
     0,
   );
 
-  const totalDealerCardCount = table.dealer.cards.length;
+  const totalDealerCardCount = table.dealer.hand.cards.length;
 
   expect(totalPlayerCardCount).toBe(10);
   expect(totalDealerCardCount).toBe(2);

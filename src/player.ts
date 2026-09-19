@@ -1,6 +1,4 @@
-import type { DealerAction } from "./dealer.js";
 import type { Card } from "./deck.js";
-import { HandEvaluator } from "./handEvaluator.js";
 
 export class Player {
   static id = 1;
@@ -8,16 +6,28 @@ export class Player {
   id: number;
   name: string;
   wallet: number;
-  cards: Card[];
+  hands: Hand[];
 
   constructor(name: string, amount: number) {
     this.id = Player.id++;
     this.name = name;
     this.wallet = amount;
-    this.cards = [];
+    this.hands = [];
   }
 
   clearCards() {
-    this.cards = [];
+    this.hands = [];
+  }
+}
+
+export class Hand {
+  cards: Card[];
+  hasDoubled: boolean;
+  wager: number;
+
+  constructor(cards?: Card[]) {
+    this.cards = cards ?? [];
+    this.hasDoubled = false;
+    this.wager = 0;
   }
 }
