@@ -1,4 +1,5 @@
 import { Engine } from "./engine.js";
+import { attachGameTextLogger } from "./gameTextLogger.js";
 import { Logger } from "./logger.js";
 import { existsSync } from "node:fs";
 
@@ -25,7 +26,8 @@ if (!existsSync(csvLoggerFilePath)) {
 
 txtLogger = new Logger(txtLoggerFilePath);
 
-const engine = new Engine(csvLogger, txtLogger);
+const engine = new Engine();
+attachGameTextLogger(engine, txtLogger);
 
 for (let i = 0; i < ROUNDS_TO_RUN; i++) {
   engine.run();

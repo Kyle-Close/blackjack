@@ -1,5 +1,6 @@
+import { EventEmitter } from "node:events";
 import { Dealer } from "./dealer.js";
-import { Deck, type Card } from "./deck.js";
+import type { Card } from "./deck.js";
 import { HandEvaluator } from "./handEvaluator.js";
 import {
   BLACK_JACK_MULTIPLIER,
@@ -7,7 +8,6 @@ import {
   DEFAULT_PLAYER_WAGER,
   DEFAULT_SEATS_AT_TABLE,
 } from "./index.js";
-import { Logger } from "./logger.js";
 import type { Hand, Player } from "./player.js";
 import {
   DealerStrategy,
@@ -20,7 +20,17 @@ import { Table } from "./table.js";
 
 export type Entity = Player | Dealer;
 
-export class Engine {
+export type EngineEvents = {
+  "round:start": [roundNumber: number];
+  "dealer:upcard": [card: Card];
+  "player:turnStart": [playerName: string];
+  "hand:state": [cards: Card[]];
+  "player:action": [action: Action];
+  "hand:bust": [];
+  "dealer:hand": [cards: Card[]];
+};
+
+export class Engine extends EventEmitter<EngineEvents> {
   static roundCount: number = 0;
 
   static totalWagered: number = 0;
@@ -32,17 +42,14 @@ export class Engine {
 
   shoe: Shoe;
   table: Table;
-  csvLogger: Logger;
-  txtLogger: Logger;
 
-  constructor(csvLogger: Logger, txtLogger: Logger) {
+  constructor() {
+    super();
+
     const dealer = new Dealer();
 
     this.shoe = new Shoe(DEFAULT_DECKS_IN_SHOE);
     this.table = new Table(dealer, DEFAULT_SEATS_AT_TABLE, true);
-
-    this.csvLogger = csvLogger;
-    this.txtLogger = txtLogger;
   }
 
   run() {
@@ -51,13 +58,11 @@ export class Engine {
 
     const dealerUpCard = this.table.dealer.getUpCard();
 
-    this.txtLogger.log(
-      `  Dealer upcard: ${Deck.getRankShort(dealerUpCard.rank) + Deck.getSuitShort(dealerUpCard.suit)}`,
-    );
-
     if (!dealerUpCard) {
       throw new Error("Dealer upcard is missing. Something went wrong.");
     }
+
+    this.emit("dealer:upcard", dealerUpCard);
 
     const players = this.table.getSeatedPlayers();
 
@@ -67,9 +72,7 @@ export class Engine {
 
     this.table.dealer.executeTurn(this.shoe, DealerStrategy);
 
-    this.txtLogger.log(
-      `  Dealer Hand: ${HandEvaluator.stringifyHand(this.table.dealer.hand.cards)}`,
-    );
+    this.emit("dealer:hand", this.table.dealer.hand.cards);
 
     this.updateHandResults();
     this.updateStaticResults(players);
@@ -126,7 +129,7 @@ export class Engine {
     if (dealtHand === undefined)
       throw new Error("Cannot execute player turn - no hands");
 
-    this.txtLogger.log(`  Simulating '${player.name}' turn:`);
+    this.emit("player:turnStart", player.name);
 
     const decision: Decision = {
       hand: dealtHand.cards,
@@ -134,10 +137,10 @@ export class Engine {
       dealerUpCard,
     };
 
-    this.txtLogger.log(`    ${HandEvaluator.stringifyHand(dealtHand.cards)}`);
+    this.emit("hand:state", dealtHand.cards);
 
     let action = strategy.getNextAction(decision);
-    this.txtLogger.log(`    ${action}`);
+    this.emit("player:action", action);
 
     const didSplit = this.playHand(player, action, dealtHand, DealerStrategy);
 
@@ -175,10 +178,10 @@ export class Engine {
         hand.wager *= 2;
       }
 
-      this.txtLogger.log(`    ${HandEvaluator.stringifyHand(hand.cards)}`);
+      this.emit("hand:state", hand.cards);
 
       if (HandEvaluator.evaluate(hand.cards) > 21) {
-        this.txtLogger.log("    Bust");
+        this.emit("hand:bust");
         return didSplit;
       }
 
@@ -188,7 +191,7 @@ export class Engine {
         legalActions: this.getAvailablePlayerActions(player),
       };
       action = strategy.getNextAction(decision);
-      this.txtLogger.log(`    ${action}`);
+      this.emit("player:action", action);
     }
 
     return didSplit;
@@ -224,7 +227,7 @@ export class Engine {
 
   dealNewRound() {
     Engine.roundCount += 1;
-    this.txtLogger.log(`Round ${Engine.roundCount}:`);
+    this.emit("round:start", Engine.roundCount);
     this.table.clearAllHands();
 
     if (this.shoe.newShuffle) {
