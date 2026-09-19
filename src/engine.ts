@@ -1,7 +1,11 @@
 import { Dealer } from "./dealer.js";
 import { Deck, type Card } from "./deck.js";
 import { HandEvaluator } from "./handEvaluator.js";
-import { DEFAULT_DECKS_IN_SHOE, DEFAULT_SEATS_AT_TABLE } from "./index.js";
+import {
+  DEFAULT_DECKS_IN_SHOE,
+  DEFAULT_PLAYER_WAGER,
+  DEFAULT_SEATS_AT_TABLE,
+} from "./index.js";
 import { Logger } from "./logger.js";
 import type { Hand, Player } from "./player.js";
 import {
@@ -17,9 +21,9 @@ export type Entity = Player | Dealer;
 
 export class Engine {
   static roundCount: number = 0;
-  static playerWinCount: number = 0;
-  static playerPushCount: number = 0;
-  static dealerWinCount: number = 0;
+
+  static totalWagered: number = 0;
+  static netResult: number = 0;
 
   shoe: Shoe;
   table: Table;
@@ -37,6 +41,7 @@ export class Engine {
   }
 
   run() {
+    this.collectPlayerWagers();
     this.dealNewRound();
 
     const dealerUpCard = this.table.dealer.getUpCard();
@@ -60,14 +65,51 @@ export class Engine {
     this.txtLogger.log(
       `  Dealer Hand: ${HandEvaluator.stringifyHand(this.table.dealer.hand.cards)}`,
     );
+
+    this.updateHandResults();
+    this.updateStaticResults(players);
   }
 
-  autoExecuteTurn(
-    player: Player,
-    strategy: Strategy,
-    dealerUpCard: Card,
-    bet: number = 0,
-  ) {
+  collectPlayerWagers() {
+    this.table
+      .getSeatedPlayers()
+      .forEach((player) => player.setWager(DEFAULT_PLAYER_WAGER));
+  }
+
+  updateHandResults() {
+    const players = this.table.getSeatedPlayers();
+
+    players.forEach((player) => {
+      player.hands.forEach((hand) => {
+        hand.result = HandEvaluator.compareHands(hand, this.table.dealer.hand);
+      });
+    });
+  }
+
+  updateStaticResults(players: Player[]) {
+    players.forEach((player) => {
+      player.hands.forEach((hand) => {
+        Engine.totalWagered += hand.wager;
+
+        switch (hand.result) {
+          case "Dealer Win":
+            Engine.netResult -= hand.wager;
+            break;
+          case "Player Win":
+            Engine.netResult += hand.wager;
+            break;
+          case "Push":
+            break;
+          default:
+            throw new Error(
+              "Cannot update engine statics - Hand result is null",
+            );
+        }
+      });
+    });
+  }
+
+  autoExecuteTurn(player: Player, strategy: Strategy, dealerUpCard: Card) {
     const dealtHand = player.hands[0];
     if (dealtHand === undefined)
       throw new Error("Cannot execute player turn - no hands");
@@ -87,18 +129,6 @@ export class Engine {
 
     const didSplit = this.playHand(player, action, dealtHand, DealerStrategy);
 
-    const handResult = HandEvaluator.compareHands(
-      dealtHand,
-      this.table.dealer.hand,
-    );
-    if (handResult === "Dealer Win") {
-      Engine.dealerWinCount += 1;
-    } else if (handResult === "Player Win") {
-      Engine.playerWinCount += 1;
-    } else {
-      Engine.playerPushCount += 1;
-    }
-
     if (didSplit) {
       const splitHand = player.hands[1];
 
@@ -106,19 +136,6 @@ export class Engine {
         throw new Error("Player split hand but no 2nd hand found");
 
       this.playHand(player, action, splitHand, DealerStrategy);
-
-      const handResult = HandEvaluator.compareHands(
-        splitHand,
-        this.table.dealer.hand,
-      );
-
-      if (handResult === "Dealer Win") {
-        Engine.dealerWinCount += 1;
-      } else if (handResult === "Player Win") {
-        Engine.playerWinCount += 1;
-      } else {
-        Engine.playerPushCount += 1;
-      }
     }
   }
 
@@ -138,6 +155,7 @@ export class Engine {
       } else if (action === "Double") {
         this.table.dealer.dealSingle(this.shoe, hand);
         hand.hasDoubled = true;
+        hand.wager *= 2;
       }
 
       this.txtLogger.log(`    ${HandEvaluator.stringifyHand(hand.cards)}`);
@@ -184,6 +202,7 @@ export class Engine {
   }
 
   dealNewRound() {
+    Engine.roundCount += 1;
     this.txtLogger.log(`Round ${Engine.roundCount}:`);
     this.table.clearAllHands();
 

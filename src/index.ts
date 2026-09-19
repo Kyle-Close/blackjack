@@ -5,6 +5,7 @@ import { existsSync } from "node:fs";
 export const ROUNDS_TO_RUN = 10000;
 export const DEFAULT_DECKS_IN_SHOE = 4;
 export const DEFAULT_SEATS_AT_TABLE = 6;
+export const DEFAULT_PLAYER_WAGER = 1;
 
 let csvLogger: Logger;
 let txtLogger: Logger;
@@ -33,11 +34,9 @@ const timeStamp = new Date().toISOString().slice(0, 16);
 const strategy = "dealer";
 const decks = DEFAULT_DECKS_IN_SHOE;
 const hands = DEFAULT_SEATS_AT_TABLE * ROUNDS_TO_RUN;
-const totalWagered = hands; // Assume $1 wagered for each hand for now. in future will need to handle dbls
-const netResult = Engine.playerWinCount * 2;
 
 csvLogger.log(
-  `${timeStamp},${strategy},${decks},${hands},${totalWagered},${netResult}`,
+  `${timeStamp},${strategy},${decks},${hands},${Engine.totalWagered},${Engine.netResult}`,
 );
 
 await csvLogger.close();

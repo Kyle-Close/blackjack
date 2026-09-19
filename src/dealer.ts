@@ -30,8 +30,10 @@ export class Dealer {
   dealTable(shoe: Shoe, players: Player[]) {
     const initPlayerHands = () => {
       players.forEach((player) => {
-        const hand: Hand = new Hand();
-        player.hands.push(hand);
+        if (player.initialWager === null)
+          throw new Error("Cannot deal to player who has not wagered");
+
+        player.hands.push(new Hand(player.initialWager));
       });
     };
 
