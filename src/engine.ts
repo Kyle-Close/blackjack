@@ -167,7 +167,7 @@ export class Engine extends EventEmitter<EngineEvents> {
       return didSplit;
     }
 
-    while (action !== "Stand") {
+    while (action !== "Stand" && action !== "Double") {
       if (action === "Hit") {
         this.table.dealer.dealSingle(this.shoe, hand);
       } else if (action === "Split") {
@@ -182,13 +182,10 @@ export class Engine extends EventEmitter<EngineEvents> {
         this.table.dealer.dealSingle(this.shoe, hand);
         hand.hasDoubled = true;
         hand.wager *= 2;
+        return didSplit;
       }
 
       this.emit("hand:state", hand.cards);
-
-      if (hand.hasDoubled) {
-        return didSplit;
-      }
 
       if (HandEvaluator.evaluate(hand.cards) > 21) {
         this.emit("hand:bust");
