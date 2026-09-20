@@ -8,7 +8,7 @@ import {
   DEFAULT_PLAYER_WAGER,
   DEFAULT_SEATS_AT_TABLE,
 } from "./index.js";
-import type { Hand, Player } from "./player.js";
+import { Hand, type Player } from "./player.js";
 import {
   DealerStrategy,
   type Action,
@@ -172,6 +172,12 @@ export class Engine extends EventEmitter<EngineEvents> {
         this.table.dealer.dealSingle(this.shoe, hand);
       } else if (action === "Split") {
         didSplit = true;
+        const otherCard = hand.cards.pop()!;
+        const secondHand = new Hand(hand.wager, [otherCard]);
+        player.hands.push(secondHand);
+
+        this.table.dealer.dealSingle(this.shoe, hand);
+        this.table.dealer.dealSingle(this.shoe, secondHand);
       } else if (action === "Double") {
         this.table.dealer.dealSingle(this.shoe, hand);
         hand.hasDoubled = true;
@@ -179,6 +185,10 @@ export class Engine extends EventEmitter<EngineEvents> {
       }
 
       this.emit("hand:state", hand.cards);
+
+      if (hand.hasDoubled) {
+        return didSplit;
+      }
 
       if (HandEvaluator.evaluate(hand.cards) > 21) {
         this.emit("hand:bust");
@@ -190,6 +200,7 @@ export class Engine extends EventEmitter<EngineEvents> {
         dealerUpCard: this.table.dealer.getUpCard(),
         legalActions: this.getAvailablePlayerActions(player),
       };
+
       action = strategy.getNextAction(decision);
       this.emit("player:action", action);
     }
