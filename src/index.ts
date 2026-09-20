@@ -15,7 +15,8 @@ let txtLogger: Logger;
 const csvLoggerFilePath = "data.csv";
 const txtLoggerFilePath = "log.txt";
 
-const csvHeader = "timestamp,strategy,decks,hands,totalWagered,netResult";
+const csvHeader =
+  "timestamp,strategy,decks,hands,totalWagered,netResult,houseEdge";
 
 if (!existsSync(csvLoggerFilePath)) {
   csvLogger = new Logger(csvLoggerFilePath);
@@ -37,9 +38,10 @@ const timeStamp = new Date().toISOString().slice(0, 16);
 const strategy = "dealer";
 const decks = DEFAULT_DECKS_IN_SHOE;
 const hands = DEFAULT_SEATS_AT_TABLE * ROUNDS_TO_RUN;
+const houseEdge = (-Engine.netResult / Engine.totalWagered) * 100;
 
 csvLogger.log(
-  `${timeStamp},${strategy},${decks},${hands},${Engine.totalWagered},${Engine.netResult}`,
+  `${timeStamp},${strategy},${decks},${hands},${Engine.totalWagered},${Engine.netResult},${houseEdge.toFixed(2)}%`,
 );
 
 console.log("Win Count: ", Engine.winCount);

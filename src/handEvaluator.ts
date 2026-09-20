@@ -6,41 +6,35 @@ export type HandResult = "Player Win" | "Dealer Win" | "Push" | "BJ";
 
 export class HandEvaluator {
   public static evaluate(cards: Card[]) {
-    let sum = 0;
+    let sumWithoutAces = 0;
     let aceCount = 0;
 
     cards.forEach((card) => {
-      if (card.value === 1) {
+      if (card.rank === "Ace") {
         aceCount++;
       } else {
-        sum += card.value;
+        sumWithoutAces += card.value;
       }
     });
 
-    for (let i = 0; i < aceCount; i++) {
-      if (sum + 11 > 21) {
-        sum += 1;
-      } else {
-        sum += 11;
-      }
+    if (aceCount > 0 && sumWithoutAces + aceCount <= 11) {
+      return sumWithoutAces + aceCount + 10;
     }
 
-    return sum;
+    return sumWithoutAces + aceCount;
   }
 
   public static compareHands(playerHand: Hand, dealerHand: Hand): HandResult {
     const playerHandValue = HandEvaluator.evaluate(playerHand.cards);
     const dealerHandValue = HandEvaluator.evaluate(dealerHand.cards);
 
-    if (
-      playerHand.cards.length === 2 &&
-      HandEvaluator.evaluate(playerHand.cards) === 21 &&
-      !(
-        dealerHand.cards.length === 2 &&
-        HandEvaluator.evaluate(dealerHand.cards) === 21
-      )
-    ) {
+    const playerBJ = this.isBJ(playerHand.cards);
+    const dealerBJ = this.isBJ(dealerHand.cards);
+
+    if (playerBJ && !dealerBJ) {
       return "BJ";
+    } else if (!playerBJ && dealerBJ) {
+      return "Dealer Win";
     } else if (playerHandValue > 21) {
       return "Dealer Win";
     } else if (dealerHandValue > 21) {
@@ -52,6 +46,10 @@ export class HandEvaluator {
     } else {
       return "Dealer Win";
     }
+  }
+
+  private static isBJ(cards: Card[]) {
+    return cards.length === 2 && HandEvaluator.evaluate(cards) === 21;
   }
 
   public static stringifyHand(hand: Card[]) {

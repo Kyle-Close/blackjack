@@ -114,30 +114,30 @@ export class Deck {
   }
 
   public static getRankShort(rank: Rank): string {
-    switch(rank) {
-      case 'Ace':
-        return 'A';
-      case 'King':
-        return 'K';
-      case 'Queen':
-        return 'Q';
-      case 'Jack':
-        return 'J';
+    switch (rank) {
+      case "Ace":
+        return "A";
+      case "King":
+        return "K";
+      case "Queen":
+        return "Q";
+      case "Jack":
+        return "J";
       default:
         return rank;
     }
   }
 
   public static getSuitShort(suit: Suit) {
-    switch(suit) {
-      case 'Spade':
-        return '\u2660'
-      case 'Club':
-        return '\u2663'
-      case 'Heart':
-        return '\u2666'
-      case 'Diamond':
-        return '\u2663'
+    switch (suit) {
+      case "Spade":
+        return "\u2660"; // ♠
+      case "Club":
+        return "\u2663"; // ♣
+      case "Heart":
+        return "\u2665"; // ♥
+      case "Diamond":
+        return "\u2666"; // ♦
     }
   }
 }
