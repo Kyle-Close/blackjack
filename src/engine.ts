@@ -17,18 +17,9 @@ import {
 } from "./playerStrategy.js";
 import { Shoe } from "./shoe.js";
 import { Table } from "./table.js";
+import type { EngineEvents } from "./gameTextLogger.js";
 
 export type Entity = Player | Dealer;
-
-export type EngineEvents = {
-  "round:start": [roundNumber: number];
-  "dealer:upcard": [card: Card];
-  "player:turnStart": [playerName: string];
-  "hand:state": [cards: Card[]];
-  "player:action": [action: Action];
-  "hand:bust": [];
-  "dealer:hand": [cards: Card[]];
-};
 
 export class Engine extends EventEmitter<EngineEvents> {
   static roundCount: number = 0;

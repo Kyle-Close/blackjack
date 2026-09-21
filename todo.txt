@@ -1,1 +1,0 @@
-1. Implement writing to a file (csv?). I want to capture the stats of playing a bunch of hands with different playing strategies

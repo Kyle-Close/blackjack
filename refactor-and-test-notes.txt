@@ -1,0 +1,81 @@
+REFACTOR & UNIT TEST PRIORITIES
+(written before implementing correct split-hand logic)
+
+===================================================
+REFACTOR PRIORITIES (highest first)
+===================================================
+
+1. Engine hand-iteration logic won't survive a real split fix.
+   autoExecuteTurn (engine.ts:118-146) hardcodes player.hands[0] and
+   player.hands[1], and playHand only recurses once when a split happens.
+   There's no path to re-splitting (splitting a split hand) - the data
+   model (player.hands: Hand[]) supports N hands, but the control flow
+   doesn't. This is almost certainly why split hands are currently broken.
+   Worth restructuring to loop over player.hands as a queue that split can
+   push onto, rather than two special-cased calls.
+
+2. getAvailablePlayerActions inspects the wrong hand.
+   It always reads player.hands[0] (engine.ts:203-225) regardless of which
+   hand is actually being played. When playing the second (split) hand,
+   isFirstAction / allowSplit / Double-eligibility are all computed from
+   the FIRST hand's cards, not the hand in play. This directly corrupts
+   split-hand decisions today. Needs to take the specific hand being
+   played, not just player.
+
+3. Blackjack detection doesn't distinguish "natural" from "21 after split."
+   Both Engine.isBJ (engine.ts:199-201) and HandEvaluator.isBJ
+   (handEvaluator.ts:51-53) just check cards.length === 2 && value === 21 -
+   duplicated logic, and neither knows a hand came from a split. Standard
+   rules say a split hand hitting 21 is NOT a natural blackjack (no 3:2
+   payout). Resolve the duplication and add a wasSplit/origin flag on Hand
+   before wiring more split behavior on top.
+
+4. Static mutable state on Engine makes both the split fix and testing
+   harder.
+   roundCount, totalWagered, netResult, winCount/lossCount/pushCount are
+   all static (engine.ts:25-32) - they persist across new Engine()
+   instances and accumulate globally. Awkward for isolated unit tests per
+   round, and couples payout bookkeeping (updateStaticResults) into the
+   same class as turn orchestration. A small Ledger/Stats object owned by
+   an Engine instance would decouple this cleanly.
+
+5. Dead/confusing strategy wiring.
+   Players are driven by DealerStrategy (engine.ts:61) - literally "hit
+   until 17" - while BasicStrategy (playerStrategy.ts:42-47) exists but is
+   unused and would throw immediately if used ("Hit" isn't run through
+   selectAvailableAction, and it ignores legalActions entirely, so it'd
+   break the moment Split/Double are legal). Split logic will need real
+   per-hand strategy decisions - clean this up before layering more on it.
+
+===================================================
+UNIT TEST PRIORITIES (highest first)
+===================================================
+
+3. Engine has zero test coverage - and it's the largest, most stateful,
+   and (per commit history) currently buggiest file. Before refactoring
+   split logic, tests here are the safety net that tells you whether the
+   refactor changed behavior. Priority spots: playHand's split branch
+   (does it produce two correct hands, does re-split even attempt to
+   work), getAvailablePlayerActions per-hand correctness,
+   updateHandResults/updateStaticResults payout math (BJ 3:2, push,
+   dealer-bust, doubled wager), and isBJ vs. split-hand 21.
+
+4. HandEvaluator.compareHands is untested (only bare evaluate is
+   covered). Needs cases for: both BJ, player BJ vs dealer 21-non-BJ,
+   push, player bust, dealer bust, and (once fixed) split-hand 21 vs.
+   dealer BJ.
+
+5. playerStrategy.ts untested - DealerStrategy's hit/stand boundary at
+   17, and selectAvailableAction throwing when the action isn't in
+   legalActions.
+
+6. Shoe untested - cut-card index math, newShuffle flag flipping at the
+   cut card, and draw() throwing on an empty shoe.
+
+7. Player/Hand/Table untested - cheap, high-value: seat-limit enforcement
+   (seatPlayer throwing when full), getSeatedPlayers filtering nulls,
+   clearAllHands resetting dealer + all players.
+
+8. Logger/gameTextLogger - lowest priority. Pure I/O/formatting side
+   effects; a couple of "does the right event produce the right log
+   line" tests would be nice but shouldn't block the split work.

@@ -1,7 +1,18 @@
-import { Deck } from "./deck.js";
+import { Deck, type Card } from "./deck.js";
 import type { Engine } from "./engine.js";
 import { HandEvaluator } from "./handEvaluator.js";
 import { Logger } from "./logger.js";
+import type { Action } from "./playerStrategy.js";
+
+export type EngineEvents = {
+  "round:start": [roundNumber: number];
+  "dealer:upcard": [card: Card];
+  "player:turnStart": [playerName: string];
+  "hand:state": [cards: Card[]];
+  "player:action": [action: Action];
+  "hand:bust": [];
+  "dealer:hand": [cards: Card[]];
+};
 
 export function attachGameTextLogger(engine: Engine, logger: Logger) {
   engine.on("round:start", (roundNumber) => {

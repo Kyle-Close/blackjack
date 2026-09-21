@@ -10,6 +10,7 @@ test("Expect correct amount of cards to be dealt to each player & dealer", () =>
   const shoe = new Shoe(4);
 
   const players = table.getSeatedPlayers();
+  players.forEach((player) => player.setWager(1));
 
   dealer.dealTable(shoe, players);
 
