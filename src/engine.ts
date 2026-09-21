@@ -7,7 +7,7 @@ import {
   DEFAULT_DECKS_IN_SHOE,
   DEFAULT_PLAYER_WAGER,
   DEFAULT_SEATS_AT_TABLE,
-} from "./index.js";
+} from "./config.js";
 import { Hand, type Player } from "./player.js";
 import {
   DealerStrategy,

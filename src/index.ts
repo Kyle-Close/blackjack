@@ -2,12 +2,7 @@ import { Engine } from "./engine.js";
 import { attachGameTextLogger } from "./gameTextLogger.js";
 import { Logger } from "./logger.js";
 import { existsSync } from "node:fs";
-
-export const ROUNDS_TO_RUN = 10000;
-export const DEFAULT_DECKS_IN_SHOE = 4;
-export const DEFAULT_SEATS_AT_TABLE = 6;
-export const DEFAULT_PLAYER_WAGER = 1;
-export const BLACK_JACK_MULTIPLIER = 1.5;
+import { DEFAULT_DECKS_IN_SHOE, DEFAULT_SEATS_AT_TABLE, ROUNDS_TO_RUN } from "./config.js";
 
 let csvLogger: Logger;
 let txtLogger: Logger;
