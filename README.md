@@ -12,8 +12,6 @@ npm start          # run a simulation
 
 ## Usage
 
-Show the smallest command that produces a real result, and its output:
-
 ```bash
 npm start -- --strategy dealer --decks 4 --hands 60000
 ```
@@ -27,10 +25,10 @@ timestamp,strategy,decks,hands,totalWagered,netResult,houseEdge
 
 ## Configuration
 
-| Option | Values | Default | Notes |
-|---|---|---|---|
-| `--strategy` | `dealer`, ... | `dealer` | Player decision logic |
-| `--decks` | integer | `4` | Shoe size |
-| `--hands` | integer | — | Rounds to simulate |
-| `--soft17` | `stand`, `hit` | ? | Whether 17 with an ace is hit |
-| `--blackjackPayout` | `1.5`, `1.2` | `1.5` | 3:2 vs 6:5 |
+| Option              | Values         | Default  | Notes                         |
+| ------------------- | -------------- | -------- | ----------------------------- |
+| `--strategy`        | `dealer`, ...  | `dealer` | Player decision logic         |
+| `--decks`           | integer        | `4`      | Shoe size                     |
+| `--hands`           | integer        | —        | Rounds to simulate            |
+| `--soft17`          | `stand`, `hit` | ?        | Whether 17 with an ace is hit |
+| `--blackjackPayout` | `1.5`, `1.2`   | `1.5`    | 3:2 vs 6:5                    |
